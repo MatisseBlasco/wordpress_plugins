@@ -1,46 +1,118 @@
 <?php
 
-Class Socialnetwork extends WP_Widget {
-
-    function __construct() {
+class Socialmedia extends WP_Widget
+{
+    /**
+     * Register widget with WordPress.
+     */
+    public function __construct() {
         parent::__construct(
-        // widget ID
-        'social_widget',
-        // widget name
-        __('Another Social Widget'),
-        // widget description
-        array( 'description' => __( 'le meilleur widget de lunivers'), )
+            'social_widget', // Base ID
+            'Socialmedia', // Name
+            array( 'description' => __( 'Widget réseaux sociaux', 'text_domain' ), ) // Args
         );
     }
+    
+    // The widget form (for the backend )
+public function form( $instance ) {
 
-    public function widget( $args, $instance ) {
-        $title = apply_filters( 'Socialnetwork_widget', $instance['title'] );
-        echo $args['before_widget'];
-        //if title is present
-        if ( ! empty( $title ) )
-        echo $args['before_title'] . $title . $args['after_title'];
-        //output
-        echo __('<img src="wp-content/plugins/wordpress_plugins/social_medias/linkedin.png" alt="logo" />');
-        echo $args['after_widget'];
-    }
+	// Set widget defaults
+	$defaults = array(
+		'title'    => '',
+		'text'     => '',
+		'select'   => '',
+	);
+	
+	// Parse current settings with defaults
+	extract( wp_parse_args( ( array ) $instance, $defaults ) ); ?>
 
-    public function form( $instance ) {
-        if ( isset( $instance[ 'title' ] ) )
-        $title = $instance[ 'title' ];
-        else
-        $title = __( 'Titre par défaut');
-        ?>
-        <p>
-        <label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e( 'Title:' ); ?></label>
-        <input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo esc_attr( $title ); ?>" />
-        </p>
-        <?php
-    }
+	<?php // Widget Title ?>
+	<p>
+		<label for="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>"><?php _e( 'Widget Title', 'text_domain' ); ?></label>
+		<input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'title' ) ); ?>" type="text" value="<?php echo esc_attr( $title ); ?>" />
+	</p>
 
-    public function update( $new_instance, $old_instance ) {
-        $instance = array();
-        $instance['title'] = ( ! empty( $new_instance['title'] ) ) ? strip_tags( $new_instance['title'] ) : '';
-        return $instance;
-    }
+	<?php // Text Field ?>
+	<p>
+		<label for="<?php echo esc_attr( $this->get_field_id( 'text' ) ); ?>"><?php _e( 'Text:', 'text_domain' ); ?></label>
+		<input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'text' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'text' ) ); ?>" type="text" value="<?php echo esc_attr( $text ); ?>" />
+	</p>
 
+	<?php // Dropdown ?>
+	<p>
+		<label for="<?php echo $this->get_field_id( 'select' ); ?>"><?php _e( 'Select', 'text_domain' ); ?></label>
+		<select name="<?php echo $this->get_field_name( 'select' ); ?>" id="<?php echo $this->get_field_id( 'select' ); ?>" class="widefat">
+		<?php
+
+global $wpdb;
+// this adds the prefix which is set by the user upon instillation of wordpress
+$table_name = $wpdb->prefix . "socialnetwork";
+// this will get the data from your table
+$retrieve_data = $wpdb->get_results( "SELECT * FROM $table_name" );
+var_dump($retrieve_data);
+		// Your options array
+		$options = array(
+			''        => __( 'Select', 'text_domain' ),
+			'option_1' => __( 'Option 1', 'text_domain' ),
+		);
+        var_dump($retrieve_data);
+
+		// Loop through options and add each one to the select dropdown
+		foreach ( $options as $key => $name ) {
+			echo '<option value="' . esc_attr( $key ) . '" id="' . esc_attr( $key ) . '" '. selected( $select, $key, false ) . '>'. $name . '</option>';
+
+		} ?>
+		</select>
+	</p>
+
+<?php }
+
+	// Update widget settings
+	public function update( $new_instance, $old_instance ) {
+		$instance = $old_instance;
+		$instance['title']    = isset( $new_instance['title'] ) ? wp_strip_all_tags( $new_instance['title'] ) : '';
+		$instance['text']     = isset( $new_instance['text'] ) ? wp_strip_all_tags( $new_instance['text'] ) : '';
+		$instance['select']   = isset( $new_instance['select'] ) ? wp_strip_all_tags( $new_instance['select'] ) : '';
+		return $instance;
+	}
+
+	// Display the widget
+	public function widget( $args, $instance ) {
+
+		extract( $args );
+
+		// Check the widget options
+		$title    = isset( $instance['title'] ) ? apply_filters( 'widget_title', $instance['title'] ) : '';
+		$text     = isset( $instance['text'] ) ? $instance['text'] : '';
+		$select   = isset( $instance['select'] ) ? $instance['select'] : '';
+		
+
+		// WordPress core before_widget hook (always include )
+		echo $before_widget;
+
+		// Display the widget
+		echo '<div class="widget-text wp_widget_plugin_box">';
+
+			// Display widget title if defined
+			if ( $title ) {
+				echo $before_title . $title . $after_title;
+			}
+
+			// Display text field
+			if ( $text ) {
+				echo '<p>' . $text . '</p>';
+			}
+
+
+			// Display select field
+			if ( $select ) {
+				echo '<p>' . $select . '</p>';
+			}
+
+		echo '</div>';
+
+		// WordPress core after_widget hook (always include )
+		echo $after_widget;
+	}
+    
 }
