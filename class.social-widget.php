@@ -38,28 +38,25 @@ public function form( $instance ) {
 		<input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'text' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'text' ) ); ?>" type="text" value="<?php echo esc_attr( $text ); ?>" />
 	</p>
 
-	<?php // Dropdown ?>
-	<p>
-		<label for="<?php echo $this->get_field_id( 'select' ); ?>"><?php _e( 'Select', 'text_domain' ); ?></label>
-		<select name="<?php echo $this->get_field_name( 'select' ); ?>" id="<?php echo $this->get_field_id( 'select' ); ?>" class="widefat">
-		<?php
-
-global $wpdb;
+	<?php // Dropdown  
+    
+    global $wpdb;
 // this adds the prefix which is set by the user upon instillation of wordpress
 $table_name = $wpdb->prefix . "socialnetwork";
 // this will get the data from your table
 $retrieve_data = $wpdb->get_results( "SELECT * FROM $table_name" );
 var_dump($retrieve_data);
-		// Your options array
-		$options = array(
-			''        => __( 'Select', 'text_domain' ),
-			'option_1' => __( 'Option 1', 'text_domain' ),
-		);
-        var_dump($retrieve_data);
+?>
+	<p>
+		<label for="<?php echo $this->get_field_id( 'select' ); ?>"><?php _e( 'Select', 'text_domain' ); ?></label>
+		<select name="<?php echo $this->get_field_name( 'select' ); ?>" id="<?php echo $this->get_field_id( 'select' ); ?>" class="widefat">
+		<?php
+	
+    
 
 		// Loop through options and add each one to the select dropdown
-		foreach ( $options as $key => $name ) {
-			echo '<option value="' . esc_attr( $key ) . '" id="' . esc_attr( $key ) . '" '. selected( $select, $key, false ) . '>'. $name . '</option>';
+		foreach ( $retrieve_data as $data ) {
+			echo '<option value="' . esc_attr( $data->name ) . '" id="' . esc_attr( $data->id ) . '" '. selected( $select, false ) . '>'. $data->name . '</option>';
 
 		} ?>
 		</select>
