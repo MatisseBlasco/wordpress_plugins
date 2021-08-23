@@ -8,7 +8,9 @@
  **/
 
 require_once('class.social-widget.php');
+define('LOGOFILE', plugin_dir_path(__FILE__));
 
+//----------------Create table
 function table_install()
 {
     global $wpdb;
@@ -30,6 +32,16 @@ function table_install()
 }
 
 register_activation_hook(__FILE__, 'table_install');
+
+//----------------Drop table
+function table_uninstall()
+{
+    global $wpdb;
+    $table_name = $wpdb->prefix . "socialnetwork";
+    $wpdb->query("DROP TABLE IF EXISTS $table_name");
+}
+
+register_deactivation_hook(__FILE__, 'table_uninstall');
 
 
 //register widget
@@ -59,53 +71,77 @@ add_action('admin_menu', 'my_admin_menu');
 function my_admin_page_contents()
 {
     var_dump($_POST);
-    ?>
-        <h1>
-            <?php esc_html_e('Social Medias Plugin.', 'my-plugin-textdomain'); ?>
-        </h1>
+?>
+    <h1>
+        <?php esc_html_e('Social Medias Plugin.', 'my-plugin-textdomain'); ?>
+    </h1>
 
-        <form id="formulaire" action="" method="POST">
-            <label for="title">Réseau</label>
-            <input type="text" id="title" name="title">
+    <form id="formulaire" action="" method="POST" enctype="multipart/form-data">
+        <label for="title">Réseau</label>
+        <input type="text" id="title" name="title" required>
 
-            <label for="url">Url Réseau</label>
-            <input type="text" id="url" name="url">
+        <label for="url">Url Réseau</label>
+        <input type="text" id="url" name="url" required>
 
-            <div id="btn">+</div>
+        <input type="file" name="logo" required>
 
-            <input type="submit" name="submit" value="Enregistrer">
-        </form>
+        <div id="btn">+</div>
 
-        <?php 
-            if ( isset( $_POST['submit'] ) ){
-                echo "coucou";
-                global $wpdb;
-                $tablename = $wpdb->prefix.'socialnetwork';
-                
-               $wpdb->insert( $tablename, array(
-                   'name' => $_POST['title'], 
-                   'url' => $_POST['url'], 
-                   ),
-                   array( '%s', '%s', '%s') 
-               );
-               
-            }
-        ?>
+        <input type="submit" name="submit" value="Enregistrer">
+    </form>
 
-        <script>
-            const btn = document.getElementById('btn');
-            const formulaire = document.getElementById('formulaire');
-
-            btn.addEventListener('click', function(){
-                console.log('coucou');
-                var input = document.createElement("input");
-                input.type = "text";
-                formulaire.appendChild(input);
-            })
-        </script>
     <?php
+    if (!empty($_POST['url']) && !empty($_POST['title']) && !empty($_FILES['logo']) && isset($_POST['submit'])) {
+        echo "coucou";
+        global $wpdb;
+        $tablename = $wpdb->prefix . 'socialnetwork';
+
+        var_dump($_FILES);
+
+        $tmpName = $_FILES['logo']['tmp_name'];
+        $name = $_FILES['logo']['name'];
+        $size = $_FILES['logo']['size'];
+        $errors = $_FILES['logo']['error'];
+        $getExtension = explode('.', $name);
+        $extension = strtolower(end($getExtension));
+        $allowed = array('jpg', 'png', 'jpeg', 'jfif', 'webp', 'svg');
+        $maxsize = 20000000;
+
+        if (in_array($extension, $allowed) && $size <= $maxsize && $errors == 0) {
+            $uniq = uniqid('', true);
+            $file = $uniq . "." . $extension;
+            move_uploaded_file($tmpName, LOGOFILE . 'social_medias/' . $file);
+        } else {
+            echo "Veuillez choisir un bon format de fichier d'une taille de 2Mb maximum.";
+        }
+
+        var_dump($tmpName);
+
+        var_dump($file);
+
+        $wpdb->insert(
+            $tablename,
+            array(
+                'name' => $_POST['title'],
+                'url' => $_POST['url'],
+                'imgUrl' => $file,
+            ),
+            array('%s', '%s', '%s')
+        );
+    }
+    ?>
+
+    <script>
+        const btn = document.getElementById('btn');
+        const formulaire = document.getElementById('formulaire');
+
+        btn.addEventListener('click', function() {
+            console.log('coucou');
+            var input = document.createElement("input");
+            var label = document.createElement("label");
+            input.type = "text";
+            formulaire.appendChild(input);
+        })
+    </script>
+<?php
 }
-
-
-
-
