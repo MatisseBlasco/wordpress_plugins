@@ -56,18 +56,73 @@ function register_socialnetwork()
 function my_admin_menu()
 {
     add_menu_page(
-        __('Social Widget page', 'my-textdomain'),
-        __('Social Medias', 'my-textdomain'),
-        'manage_options',
+        __('Social Widget page', 'my-textdomain'), //titre page
+        __('Social Medias', 'my-textdomain'), //titre menu
+        'manage_options', //capability
+        'social-widget-page', //slug
+        'my_admin_page_contents', //callbac
+        'dashicons-schedule', //icon url
+        3 //position
+    );
+
+    add_submenu_page(
         'social-widget-page',
-        'my_admin_page_contents',
-        'dashicons-schedule',
-        3
+        'Vos réseaux', //page title
+        'Vos réseaux', //menu title
+        'edit_themes', //capability,
+        'vos-reseaux', //menu slug
+        'my_submenu_content' //callback function
     );
 }
-
 add_action('admin_menu', 'my_admin_menu');
 
+
+function my_submenu_content()
+{
+    global $wpdb;
+    $table_name = $wpdb->prefix . "socialnetwork";
+    $retrieve_data = $wpdb->get_results("SELECT * FROM $table_name"); ?>
+
+    <form action="" method="POST">
+        <table>
+            <thead>
+                <tr>
+                    <th>Nom du réseaux</th>
+                    <th>URL du réseaux</th>
+                    <th>Logo du réseaux</th>
+                    <th>Modifier</th>
+                    <th>Supprimer</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($retrieve_data as $data) : ?>
+                    <tr>
+                        <td><?= $data->name ?></td>
+                        <td><?= $data->url ?></td>
+                        <td><?= $data->imgUrl ?></td>
+                        <td><a href="">Modifier</a></td>
+                        <td><button name="delete" value="<?= $data->id ?>">Supprimer</button></td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </form>
+<?php
+}
+
+if (isset($_POST['delete'])) {
+    DeleteEntry();
+}
+
+function DeleteEntry() {
+    $id = $_POST['delete'];
+    global $wpdb;
+    $table_name = $wpdb->prefix . "socialnetwork";
+    $wpdb->delete( $table_name, array( 'id' => $id ) );
+}
+
+
+//PAGE ADMIN INSERT SOCIAL MEDIA
 function my_admin_page_contents()
 {
     var_dump($_POST);
