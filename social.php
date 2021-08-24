@@ -53,7 +53,6 @@ function register_socialnetwork()
 }
 
 //page admin
-<<<<<<< HEAD
 function my_admin_menu()
 {
     add_menu_page(
@@ -75,20 +74,9 @@ function my_admin_menu()
         'my_submenu_content' //callback function
     );
 }
-=======
-
->>>>>>> 983383c0b636b789412d8a2d1b30607568083ec6
 add_action('admin_menu', 'my_admin_menu');
- 
-function my_admin_menu() {
-   add_menu_page(__('Social Widget page', 'my-textdomain'), __('Social Medias', 'my-textdomain'), 'manage_options', 'social-widget-page', 'my_admin_page_contents', 'dashicons-schedule', 30);
-   add_submenu_page('social-widget-page', 'Ajouter réseaux sociaux', 
-        'Ajouter réseaux sociaux', 'manage_options', 'admin.php?page=social-widget-page','');
-    add_submenu_page('social-widget-page', 'Tous les réseaux sociaux',
-        'Tous les réseaux sociaux', 'manage_options', 'admin.php?page=social-all-medias-page.php','');
-}
 
-
+//SUBMENU ADMIN
 function my_submenu_content()
 {
     global $wpdb;
@@ -122,6 +110,7 @@ function my_submenu_content()
 <?php
 }
 
+//function DELETE
 if (isset($_POST['delete'])) {
     DeleteEntry();
 }

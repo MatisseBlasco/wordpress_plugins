@@ -67,7 +67,7 @@ class Socialmedia extends WP_Widget
 		$check = $instance['checkbox'];
 
 
-		// WordPress core before_widget hook (always include )
+		// WordPress  before_widget
 		echo $before_widget;
 
 		// Display the widget
@@ -95,7 +95,7 @@ class Socialmedia extends WP_Widget
 
 		echo '</div>';
 
-		// WordPress core after_widget hook (always include )
+		// WordPress after_widget hook 
 		echo $after_widget;
 	}
 }
